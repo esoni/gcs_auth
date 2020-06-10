@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gcp.storage.GoogleStorageResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.FileCopyUtils;
@@ -53,14 +54,17 @@ public class ProfilePicturesController {
 
     }
     @RequestMapping(value = "/profile-picture", method = RequestMethod.GET)
-    final @ResponseBody void geturl(HttpServletResponse httpServletResponse) throws IOException {
+    final @ResponseBody void getProfilePicture(HttpServletResponse httpServletResponse) throws IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         Storage storage = StorageOptions.getDefaultInstance().getService();
-        Credentials cr = StorageOptions.getDefaultInstance().getCredentials();
         ServiceAccountCredentials sr = ServiceAccountCredentials.fromStream(new FileInputStream(signerStorageKey));
 
         GoogleStorageResource resource = new GoogleStorageResource(storage, bucketName + "/" + user.getUserId() + ".png", true);
+        if (!resource.exists()) {
+            httpServletResponse.setStatus(HttpStatus.NOT_FOUND.value());
+            return;
+        }
         URL url = resource.createSignedUrl(TimeUnit.MINUTES, 10, Storage.SignUrlOption.httpMethod(HttpMethod.GET), Storage.SignUrlOption.signWith(sr));
         String urlStr = url.toString();
         httpServletResponse.setStatus(302);
