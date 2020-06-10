@@ -23,6 +23,12 @@
                 <version>1.2.2.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>io.opencensus</groupId>
+                        <artifactId>opencensus-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>
