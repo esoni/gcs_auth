@@ -1,5 +1,6 @@
 package it.frongillo.demostorage;
 
+import com.google.api.gax.core.CredentialsProvider;
 import it.frongillo.demostorage.model.entity.UserEntity;
 import it.frongillo.demostorage.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -15,6 +16,7 @@ public class DemoStorageApplication {
     public PasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
     @Bean
     public CommandLineRunner demo(UserRepository repository) {
         return (args) -> {
