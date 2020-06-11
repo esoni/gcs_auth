@@ -39,15 +39,14 @@ public class ProfilePicturesController {
     @Value("${admin_storage_key.location}")
     private String adminStorageKey;
 
+    @Autowired
+    private Storage storage;
+
     @RequestMapping(value = "/profile-picture", method = RequestMethod.POST)
     final @ResponseBody
     void uploadProfileImage(@RequestParam("picture") MultipartFile picture) throws IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        //Storage storage = StorageOptions.getDefaultInstance().getService();
-        //Credentials credentials = GoogleCredentials.fromStream(new FileInputStream("D:\\keys\\key.json"));
-        Credentials credentials = GoogleCredentials.fromStream(new FileInputStream(adminStorageKey));
-        Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
         GoogleStorageResource resource = new GoogleStorageResource(storage, bucketName + "/" + user.getUserId() + ".png", true);
         resource.createBlob(picture.getBytes());
 
@@ -57,7 +56,6 @@ public class ProfilePicturesController {
     final @ResponseBody void getProfilePicture(HttpServletResponse httpServletResponse) throws IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        Storage storage = StorageOptions.getDefaultInstance().getService();
         ServiceAccountCredentials sr = ServiceAccountCredentials.fromStream(new FileInputStream(signerStorageKey));
 
         GoogleStorageResource resource = new GoogleStorageResource(storage, bucketName + "/" + user.getUserId() + ".png", true);
